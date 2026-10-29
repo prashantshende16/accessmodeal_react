@@ -1,73 +1,40 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./AuthContext.jsx";
-import Protected from "./ProtectedRoute.jsx";
+import ProtectedRoute from "./ProtectedRoute.jsx";
 import Layout from "./components/Layout.jsx";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Users from "./pages/admin/Users.jsx";
-import Permissions from "./pages/admin/Permissions.jsx";
-import RecordsPage from "./pages/RecordsPage.jsx";
-import Profile from "./pages/Profile.jsx";
-import { Forbidden, NotFound } from "./pages/Errors.jsx";
-import { PAGES } from "./config.js";
-
-function Home() {
-  const { user, loading } = useAuth();
-  if (loading) return <div className="center-screen">Loading…</div>;
-  if (!user) return <Navigate to="/login" replace />;
-  return <Navigate to={user.role === "admin" ? "/admin" : "/app"} replace />;
-}
+import Projects from "./pages/Projects.jsx";
+import NewProject from "./pages/NewProject.jsx";
+import Issues from "./pages/Issues.jsx";
+import IssueDetail from "./pages/IssueDetail.jsx";
+import Uptime from "./pages/Uptime.jsx";
+import Alerts from "./pages/Alerts.jsx";
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
 
-      {/* ================= ADMIN PANEL  (/admin/...) ================= */}
+      {/* Authenticated Platform Console */}
       <Route
-        path="/admin"
+        path="/"
         element={
-          <Protected role="admin">
-            <Layout mode="admin" />
-          </Protected>
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="users" element={<Users />} />
-        <Route path="users/:id/permissions" element={<Permissions />} />
-        {PAGES.map((p) => (
-          <Route key={p.key} path={p.key} element={<RecordsPage pageKey={p.key} title={p.name} />} />
-        ))}
-        <Route path="profile" element={<Profile />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="projects" element={<Projects />} />
+        <Route path="projects/new" element={<NewProject />} />
+        <Route path="issues" element={<Issues />} />
+        <Route path="issues/:id" element={<IssueDetail />} />
+        <Route path="uptime" element={<Uptime />} />
+        <Route path="alerts" element={<Alerts />} />
       </Route>
 
-      {/* ================= USER SITE  (/app/...) ================= */}
-      <Route
-        path="/app"
-        element={
-          <Protected role="user">
-            <Layout mode="user" />
-          </Protected>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        {PAGES.map((p) => (
-          <Route
-            key={p.key}
-            path={p.key}
-            element={
-              <Protected page={p.key} action="view">
-                <RecordsPage pageKey={p.key} title={p.name} />
-              </Protected>
-            }
-          />
-        ))}
-        <Route path="profile" element={<Profile />} />
-      </Route>
-
-      <Route path="/forbidden" element={<Forbidden />} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

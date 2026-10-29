@@ -1,4 +1,4 @@
-const TOKEN_KEY = "rbac_token";
+const TOKEN_KEY = "errorwatch_token";
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (t) => localStorage.setItem(TOKEN_KEY, t);
@@ -9,7 +9,7 @@ async function request(method, path, body) {
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`/api/v1${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,

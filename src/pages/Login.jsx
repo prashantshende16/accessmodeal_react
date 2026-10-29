@@ -1,68 +1,173 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
+import { ShieldAlert, LogIn, UserPlus } from "lucide-react";
 
 export default function Login() {
-  const { user, login, loading } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [isRegister, setIsRegister] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("admin@example.com");
+  const [password, setPassword] = useState("admin123");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  if (!loading && user) return <Navigate to={user.role === "admin" ? "/admin" : "/app"} replace />;
-
-  const submit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setBusy(true);
+    setLoading(true);
     try {
-      const u = await login(email, password);
-      navigate(u.role === "admin" ? "/admin" : "/app", { replace: true });
+      if (isRegister) {
+        await register(name, email, password);
+      } else {
+        await login(email, password);
+      }
+      navigate("/", { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Authentication failed");
     } finally {
-      setBusy(false);
+      setLoading(false);
     }
   };
 
   return (
     <div className="center-screen">
-      <form className="card login-card" onSubmit={submit}>
-        <h1>Sign in</h1>
-        <p className="muted">Admins go to the admin panel, users go to the user site.</p>
-        <label>Email or Username</label>
-        <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
-        <label>Password</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        {error && <div className="alert error">{error}</div>}
-        <button className="btn" disabled={busy}>{busy ? "Signing in…" : "Login"}</button>
-        <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem" }}>
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 10,
+            background: "linear-gradient(135deg, #3b82f6, #6366f1)",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            marginBottom: 12,
+          }}
+        >
+          <ShieldAlert size={28} />
+        </div>
+        <h1 style={{ fontSize: "1.6rem", fontWeight: 800 }}>ErrorWatch</h1>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+          Universal Application Error Monitoring Platform
+        </p>
+      </div>
+
+      <div className="login-card">
+        {/* Tab switch */}
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", marginBottom: 20 }}>
           <button
             type="button"
-            className="btn small secondary"
-            onClick={() => {
-              setEmail("admin@example.com");
-              setPassword("admin123");
+            onClick={() => { setIsRegister(false); setError(""); }}
+            style={{
+              flex: 1,
+              padding: "10px 0",
+              background: "none",
+              border: "none",
+              borderBottom: !isRegister ? "2px solid var(--primary)" : "none",
+              color: !isRegister ? "var(--primary)" : "var(--text-muted)",
+              fontWeight: 600,
+              cursor: "pointer",
             }}
           >
-            Auto-fill Admin
+            Sign In
           </button>
           <button
             type="button"
-            className="btn small secondary"
-            onClick={() => {
-              setEmail("user@example.com");
-              setPassword("user123");
+            onClick={() => { setIsRegister(true); setError(""); }}
+            style={{
+              flex: 1,
+              padding: "10px 0",
+              background: "none",
+              border: "none",
+              borderBottom: isRegister ? "2px solid var(--primary)" : "none",
+              color: isRegister ? "var(--primary)" : "var(--text-muted)",
+              fontWeight: 600,
+              cursor: "pointer",
             }}
           >
-            Auto-fill User
+            Register Account
           </button>
         </div>
-        <p className="hint">
-          Demo: admin@example.com / admin123 &nbsp;|&nbsp; user@example.com / user123
-        </p>
-      </form>
+
+        {error && (
+          <div
+            style={{
+              padding: "10px 14px",
+              borderRadius: 6,
+              background: "var(--danger-bg)",
+              color: "#f87171",
+              border: "1px solid rgba(239,68,68,0.2)",
+              marginBottom: 16,
+              fontSize: "0.85rem",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          {isRegister && (
+            <div style={{ marginBottom: 14 }}>
+              <label>Full Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Jane Doe"
+                required
+              />
+            </div>
+          )}
+
+          <div style={{ marginBottom: 14 }}>
+            <label>Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@company.com"
+              required
+            />
+          </div>
+
+          <div style={{ marginBottom: 18 }}>
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn" style={{ width: "100%", justifyContent: "center" }} disabled={loading}>
+            {isRegister ? <UserPlus size={16} /> : <LogIn size={16} />}
+            <span>{loading ? "Processing…" : isRegister ? "Create ErrorWatch Account" : "Sign In to Console"}</span>
+          </button>
+        </form>
+
+        {!isRegister && (
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--border)", textAlign: "center" }}>
+            <p style={{ fontSize: "0.78rem", color: "var(--text-dim)", marginBottom: 8 }}>
+              Default Developer Demo Credentials
+            </p>
+            <button
+              type="button"
+              className="btn small secondary"
+              onClick={() => {
+                setEmail("admin@example.com");
+                setPassword("admin123");
+              }}
+            >
+              Fill Demo: admin@example.com
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

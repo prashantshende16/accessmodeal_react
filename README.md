@@ -1,19 +1,27 @@
-# RBAC Frontend (React + Vite)
+# ErrorWatch Frontend (React + Vite)
 
-Role-Based Access Control frontend application with two distinct areas:
-- `/admin/...`: Admin panel for dashboard, user management, and permission matrix configuration.
-- `/app/...`: User portal exposing only pages granted by administrators.
+Universal Application Error Monitoring Platform Console.
 
 ## Features
-- Dynamic menu and route protection based on granular user permissions (View, Add, Edit, Delete).
-- Role-based routing: Admin accounts are redirected to `/admin`, standard users to `/app`.
-- Seamless API proxying to FastAPI backend (`/api` -> `http://127.0.0.1:8000`).
+- **Overview Dashboard**: Aggregate metrics for active projects, unresolved issues, total events, and live uptime health.
+- **Project Onboarding Wizard**: Step-by-step framework selection (React, FastAPI, Node.js, Python), DSN credential generation, and one-click test verification.
+- **Interactive Issue Diagnostics**: Full stack trace inspection with frame formatting, breadcrumbs timeline, sanitized request headers, and device tags.
+- **Workflow State Management**: Toggle issue status between `Unresolved`, `In Progress`, `Resolved`, and `Ignored`.
+- **Independent Uptime Checks**: Live heartbeat monitors with on-demand probes, latency tracking, and incident history.
+- **Alert Rule Configuration**: Configure rules and review notification dispatch history.
 
 ## Setup & Run
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
 
-Application will run at `http://localhost:5173`.
+Console will run at `http://localhost:5173`.
+Proxy is configured to forward `/api` to `http://127.0.0.1:8000`.
+
+### Default Login
+- **Email**: `admin@example.com`
+- **Password**: `admin123`
+*(Auto-fill button available on the login screen)*
