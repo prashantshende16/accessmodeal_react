@@ -203,8 +203,13 @@ export default function Dashboard() {
                   }}
                 >
                   <div style={{ minWidth: 0, paddingRight: 10 }}>
-                    <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
                       <span className={`badge ${issue.severity}`}>{issue.severity}</span>
+                      {issue.project_name && (
+                        <span style={{ fontSize: "0.75rem", background: "rgba(59,130,246,0.15)", color: "#60a5fa", padding: "1px 6px", borderRadius: 4, fontWeight: 600 }}>
+                          {issue.project_name}
+                        </span>
+                      )}
                       <span style={{ fontSize: "0.78rem", color: "var(--text-dim)" }}>{issue.environment}</span>
                     </div>
                     <Link

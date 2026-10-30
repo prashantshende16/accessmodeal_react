@@ -7,7 +7,9 @@ import {
   Search,
   Filter,
   CheckCircle2,
-  RefreshCw
+  RefreshCw,
+  Trash2,
+  FolderGit2
 } from "lucide-react";
 
 export default function Issues() {
@@ -70,6 +72,16 @@ export default function Issues() {
       next.set(key, value);
     }
     setSearchParams(next);
+  };
+
+  const handleDeleteIssue = async (issueId, title) => {
+    if (!window.confirm(`Delete issue "${title}"? This cannot be undone.`)) return;
+    try {
+      await api.del(`/issues/${issueId}`);
+      setIssues((prev) => prev.filter((i) => i.id !== issueId));
+    } catch (err) {
+      alert("Failed to delete issue: " + err.message);
+    }
   };
 
   return (
@@ -178,11 +190,13 @@ export default function Issues() {
               <thead>
                 <tr>
                   <th>Issue</th>
+                  <th>Application</th>
                   <th>Severity</th>
                   <th>Status</th>
                   <th>Environment</th>
                   <th>Events</th>
                   <th>Last Seen</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -201,7 +215,7 @@ export default function Issues() {
                           fontSize: "0.92rem",
                           color: "var(--text-main)",
                           display: "block",
-                          maxWidth: 500,
+                          maxWidth: 420,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -209,6 +223,17 @@ export default function Issues() {
                       >
                         {issue.title}
                       </Link>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => handleFilterChange("project_id", String(issue.project_id))}
+                        className="btn small secondary"
+                        style={{ padding: "3px 8px", fontSize: "0.75rem", display: "inline-flex", alignItems: "center", gap: 4 }}
+                        title={`Filter by project ${issue.project_name || `Project #${issue.project_id}`}`}
+                      >
+                        <FolderGit2 size={12} color="var(--primary)" />
+                        <span>{issue.project_name || `Project #${issue.project_id}`}</span>
+                      </button>
                     </td>
                     <td>
                       <span className={`badge ${issue.severity}`}>{issue.severity}</span>
@@ -229,6 +254,16 @@ export default function Issues() {
                         {new Date(issue.last_seen).toLocaleString()}
                       </span>
                     </td>
+                    <td>
+                      <button
+                        onClick={() => handleDeleteIssue(issue.id, issue.title)}
+                        className="btn small danger"
+                        style={{ padding: "4px 8px" }}
+                        title="Delete this issue"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -239,3 +274,4 @@ export default function Issues() {
     </div>
   );
 }
+

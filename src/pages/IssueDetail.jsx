@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import {
   AlertTriangle,
@@ -10,11 +10,14 @@ import {
   ListOrdered,
   Globe,
   Tag,
-  ArrowLeft
+  ArrowLeft,
+  Trash2,
+  FolderGit2
 } from "lucide-react";
 
 export default function IssueDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [issue, setIssue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -45,6 +48,16 @@ export default function IssueDetail() {
       alert("Failed to update issue status: " + err.message);
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const deleteThisIssue = async () => {
+    if (!window.confirm("Are you sure you want to permanently delete this issue and all its events?")) return;
+    try {
+      await api.del(`/issues/${id}`);
+      navigate("/issues", { replace: true });
+    } catch (err) {
+      alert("Delete failed: " + err.message);
     }
   };
 
@@ -83,9 +96,17 @@ export default function IssueDetail() {
       <div className="card" style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
           <div style={{ flex: 1, minWidth: 300 }}>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
               <span className={`badge ${issue.severity}`}>{issue.severity}</span>
               <span className={`badge ${issue.status}`}>{issue.status.replace(/_/g, " ")}</span>
+              <Link
+                to={`/issues?project_id=${issue.project_id}`}
+                className="badge"
+                style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.3)", display: "inline-flex", alignItems: "center", gap: 4 }}
+              >
+                <FolderGit2 size={12} />
+                <span>{issue.project_name || `Project #${issue.project_id}`}</span>
+              </Link>
               <span style={{ fontSize: "0.82rem", color: "var(--text-dim)" }}>{issue.environment}</span>
             </div>
             <h1 style={{ fontSize: "1.3rem", fontWeight: 700, margin: "0 0 8px" }}>
@@ -136,6 +157,14 @@ export default function IssueDetail() {
                 <EyeOff size={15} /> Ignore
               </button>
             )}
+
+            <button
+              onClick={deleteThisIssue}
+              className="btn small danger"
+              title="Delete issue"
+            >
+              <Trash2 size={15} />
+            </button>
           </div>
         </div>
 
@@ -331,3 +360,4 @@ export default function IssueDetail() {
     </div>
   );
 }
+
